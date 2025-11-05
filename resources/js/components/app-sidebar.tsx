@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, type LucideIcon } from 'lucide-react';
+import { Folder, LayoutGrid, type LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -23,7 +23,7 @@ const getIconComponent = (iconName?: string): LucideIcon => {
     if (!iconName) return Folder;
     
     // Dynamically access the icon from lucide-react
-    const IconComponent = (LucideIcons as any)[iconName];
+    const IconComponent = (LucideIcons as Record<string, LucideIcon>)[iconName];
     
     // Fallback to Folder icon if icon name is invalid
     return IconComponent || Folder;
@@ -49,7 +49,7 @@ export function AppSidebar() {
         },
         ...modules.map((module) => ({
             ...module,
-            icon: getIconComponent(module.icon as any),
+            icon: getIconComponent(module.icon as string | undefined),
         })),
     ];
 
