@@ -3,10 +3,38 @@
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\User;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    // Create permissions for User resource
+    $permissions = [
+        'ViewAny:User',
+        'View:User',
+        'Create:User',
+        'Update:User',
+        'Delete:User',
+        'Restore:User',
+        'ForceDelete:User',
+        'ForceDeleteAny:User',
+        'RestoreAny:User',
+        'Replicate:User',
+        'Reorder:User',
+    ];
+
+    foreach ($permissions as $permission) {
+        Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+    }
+
+    // Create super_admin role and assign all permissions
+    $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+    $superAdminRole->syncPermissions($permissions);
+
+    // Create and authenticate user with super_admin role
+    $user = User::factory()->create();
+    $user->assignRole($superAdminRole);
+
+    $this->actingAs($user);
 });
 
 it('can render the page', function () {
