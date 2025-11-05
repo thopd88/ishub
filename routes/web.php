@@ -16,4 +16,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+// Load all enabled module routes
+foreach (glob(base_path('Modules/*/routes/web.php')) as $moduleRoute) {
+    require $moduleRoute;
+}
+
 require __DIR__.'/settings.php';
