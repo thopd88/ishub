@@ -1,0 +1,22 @@
+{
+    "name": "School",
+    "alias": "school",
+    "description": "A comprehensive school management module with teacher, student, and parent roles",
+    "keywords": [
+        "school",
+        "education",
+        "assignments",
+        "teacher",
+        "student",
+        "parent",
+        "roles",
+        "grading"
+    ],
+    "priority": 20,
+    "icon": "GraduationCap",
+    "route": "/school",
+    "providers": [
+        "Modules\\School\\Providers\\SchoolServiceProvider"
+    ],
+    "files": []
+}

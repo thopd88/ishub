@@ -1,0 +1,13 @@
+{
+    "name": "Blog",
+    "alias": "blog",
+    "description": "Blog management system with posts and articles",
+    "keywords": ["blog", "posts", "articles"],
+    "priority": 10,
+    "icon": "Newspaper",
+    "route": "/blog",
+    "providers": [
+        "Modules\\Blog\\Providers\\BlogServiceProvider"
+    ],
+    "files": []
+}
