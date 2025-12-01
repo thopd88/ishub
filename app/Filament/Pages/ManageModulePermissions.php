@@ -28,6 +28,8 @@ class ManageModulePermissions extends Page implements HasForms
 
     protected static ?int $navigationSort = 10;
 
+    protected string $view = 'filament.pages.manage-module-permissions';
+
     protected static ?string $title = 'Module Permissions';
 
     protected static ?string $navigationLabel = 'Module Permissions';

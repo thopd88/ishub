@@ -79,5 +79,15 @@
             "guard_name": "web",
             "roles": ["teacher", "student", "parent"]
         }
+    ],
+    "jobs": [
+        {
+            "name": "school.close_past_due_assignments",
+            "description": "Report or close assignments that are past due",
+            "type": "command",
+            "command": "school:close-past-due-assignments",
+            "cron": "0 1 * * *",
+            "enabled": true
+        }
     ]
 }

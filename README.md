@@ -191,6 +191,63 @@ ishub/
 - ✅ Isolated testing per module
 - ✅ Easy to extend - just add JSON config
 
+### Module Permissions (Per-Module Roles & Permissions)
+
+- ✅ Each module can declare its **own roles and permissions** in `Modules/<Module>/module.json`.
+- ✅ A central service (`ModulePermissionService`) reads all enabled modules and registers roles/permissions into Spatie Permission.
+- ✅ A Filament settings page lets you assign **module permissions to any role**, including core roles like `super_admin`.
+
+**Declaring roles & permissions in a module:**
+
+```json
+{
+  "name": "Blog",
+  "roles": [
+    {
+      "name": "blog_author",
+      "description": "Blog author role",
+      "guard_name": "web"
+    },
+    {
+      "name": "blog_editor",
+      "description": "Blog editor role",
+      "guard_name": "web"
+    }
+  ],
+  "permissions": [
+    {
+      "name": "blog.view_posts",
+      "description": "View blog posts",
+      "guard_name": "web",
+      "roles": ["blog_author", "blog_editor"]
+    },
+    {
+      "name": "blog.create_posts",
+      "description": "Create blog posts",
+      "guard_name": "web",
+      "roles": ["blog_author"]
+    }
+  ]
+}
+```
+
+**Managing module permissions in Filament:**
+
+1. Go to **Admin → Settings → Module Permissions**.
+2. Use the **Filter by Module** dropdown to focus on a specific module (e.g. Blog, School).
+3. For each role tab (e.g. `super_admin`, `blog_author`, `teacher`), check/uncheck permissions.
+4. Click **Save Permissions** to sync with Spatie Permission.
+5. Optionally click **Register Module Permissions** if you’ve just added new roles/permissions to `module.json`.
+
+### Module Jobs System
+
+- ✅ Declare scheduled jobs in `module.json`
+- ✅ Admin panel to manage jobs (enable/disable, schedule, timeframe)
+- ✅ Execution history with output and error tracking
+- ✅ Multi-worker support (safe concurrent execution)
+- ✅ Automatic syncing from module definitions
+- ✅ Manual "Run Now" execution
+
 ## Development
 
 ### Running Tests
@@ -275,6 +332,170 @@ Enable in `modules_statuses.json`:
 - ✅ Easy enable/disable - just toggle JSON boolean
 
 See `Modules/School/README.md` for detailed module documentation and dynamic system guide.
+
+### Module Jobs
+
+The application includes a powerful module jobs system that allows modules to define scheduled tasks that run automatically.
+
+#### Declaring Jobs in Modules
+
+Add a `jobs` array to your module's `module.json`:
+
+```json
+{
+  "name": "Blog",
+  "jobs": [
+    {
+      "name": "blog.clean_old_posts",
+      "description": "Clean old draft posts",
+      "type": "command",
+      "command": "blog:clean-old-posts",
+      "cron": "0 3 * * *",
+      "enabled": true,
+      "options": {
+        "days": 365
+      }
+    }
+  ]
+}
+```
+
+**Job Properties:**
+- `name`: Unique identifier (format: `module.job_name`)
+- `description`: Human-readable description
+- `type`: Currently supports `command`
+- `command`: Artisan command signature to execute
+- `cron`: Cron expression (e.g., `0 3 * * *` for daily at 3 AM)
+- `enabled`: Default enabled state
+- `options`: Optional JSON configuration passed to the command
+
+#### Managing Jobs in Admin Panel
+
+1. **Navigate to Module Jobs**
+   - Go to **Admin → Settings → Module Jobs**
+
+2. **Sync Jobs from Modules**
+   - Click **"Sync Module Jobs"** to pull latest job definitions from all enabled modules
+
+3. **Configure Jobs**
+   - **Edit** any job to:
+     - Change cron expression (schedule)
+     - Enable/disable execution
+     - Set timeframe (`not_before` / `not_after`)
+
+4. **Run Jobs Manually**
+   - Click **"Run Now"** on any job to execute immediately
+   - Results are logged in the execution history
+
+5. **View Execution History**
+   - Go to **Admin → Settings → Job Run History**
+   - See all job runs with:
+     - Status (success/failed/running)
+     - Worker hostname
+     - Start/finish times
+     - Command output
+     - Error messages (if failed)
+   - Filter by status or "Last 24 hours"
+
+#### Automatic Execution
+
+Jobs run automatically via Laravel's scheduler:
+
+1. **Configure System Cron** (production):
+   ```bash
+   * * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
+   ```
+
+2. **Scheduler Configuration**:
+   - The `module-jobs:run-due` command runs every minute
+   - Only due jobs (enabled, within timeframe, `next_run_at <= now()`) are executed
+   - Configured in `bootstrap/app.php`
+
+#### Multiple Workers
+
+The system supports multiple workers running concurrently:
+
+**Option 1: Supervisor (Recommended)**
+
+Create `/etc/supervisor/conf.d/module-jobs-worker.conf`:
+
+```ini
+[program:module-jobs-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/artisan module-jobs:run-due
+autostart=true
+autorestart=true
+numprocs=4
+redirect_stderr=true
+stdout_logfile=/var/log/module-jobs-worker.log
+```
+
+Then:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start module-jobs-worker:*
+```
+
+**Option 2: Multiple Servers**
+
+Run the same worker configuration on multiple servers. The system uses database-level locking (`lockForUpdate()`) to ensure each job runs exactly once, even with multiple workers.
+
+**How It Works:**
+- Each worker queries for due jobs
+- Database row-level locking prevents duplicate execution
+- `next_run_at` is updated immediately, preventing re-execution
+- Each execution is logged with worker hostname for tracking
+
+#### Creating Job Commands
+
+Example job command for Blog module:
+
+```php
+<?php
+
+namespace Modules\Blog\App\Console;
+
+use Illuminate\Console\Command;
+use Modules\Blog\Models\Post;
+
+class CleanOldPosts extends Command
+{
+    protected $signature = 'blog:clean-old-posts {--days=365}';
+    protected $description = 'Delete posts older than specified days';
+
+    public function handle(): int
+    {
+        $days = (int) $this->option('days');
+        $cutoff = now()->subDays($days);
+
+        $deleted = Post::where('published_at', '<', $cutoff)->delete();
+
+        $this->info("Deleted {$deleted} old posts.");
+
+        return self::SUCCESS;
+    }
+}
+```
+
+Register in `BlogServiceProvider::registerCommands()`:
+
+```php
+protected function registerCommands(): void
+{
+    $this->commands([
+        \Modules\Blog\App\Console\CleanOldPosts::class,
+    ]);
+}
+```
+
+#### Example Jobs
+
+**Blog Module:**
+- `blog.clean_old_posts` - Daily cleanup of posts older than 1 year
+
+**School Module:**
+- `school.close_past_due_assignments` - Daily check for past-due assignments
 
 ### Building for Production
 

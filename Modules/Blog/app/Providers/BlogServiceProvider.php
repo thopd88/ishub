@@ -55,7 +55,9 @@ class BlogServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            \Modules\Blog\App\Console\CleanOldPosts::class,
+        ]);
     }
 
     /**

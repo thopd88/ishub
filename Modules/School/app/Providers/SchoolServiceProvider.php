@@ -58,7 +58,9 @@ class SchoolServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            \Modules\School\App\Console\ClosePastDueAssignments::class,
+        ]);
     }
 
     /**

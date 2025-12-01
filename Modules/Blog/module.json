@@ -65,5 +65,18 @@
             "guard_name": "web",
             "roles": ["blog_editor"]
         }
+    ],
+    "jobs": [
+        {
+            "name": "blog.clean_old_posts",
+            "description": "Clean blog posts older than 1 year",
+            "type": "command",
+            "command": "blog:clean-old-posts",
+            "cron": "0 3 * * *",
+            "enabled": true,
+            "options": {
+                "days": 365
+            }
+        }
     ]
 }
