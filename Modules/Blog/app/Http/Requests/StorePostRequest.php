@@ -25,7 +25,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('blog.create_posts');
     }
 
     public function messages(): array

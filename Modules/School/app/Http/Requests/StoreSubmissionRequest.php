@@ -8,7 +8,7 @@ class StoreSubmissionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('student');
+        return $this->user()->can('school.submit_assignments');
     }
 
     public function rules(): array

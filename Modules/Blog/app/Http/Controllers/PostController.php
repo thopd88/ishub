@@ -17,6 +17,8 @@ class PostController extends Controller
      */
     public function index(): Response
     {
+        $this->authorize('viewAny', Post::class);
+
         $posts = Post::query()
             ->with('user')
             ->latest('published_at')
@@ -32,6 +34,8 @@ class PostController extends Controller
      */
     public function create(): Response
     {
+        $this->authorize('create', Post::class);
+
         return Inertia::render('blog/create');
     }
 
@@ -54,6 +58,8 @@ class PostController extends Controller
      */
     public function show(Post $post): Response
     {
+        $this->authorize('view', $post);
+
         $post->load('user');
 
         return Inertia::render('blog/show', [
@@ -66,6 +72,8 @@ class PostController extends Controller
      */
     public function edit(Post $post): Response
     {
+        $this->authorize('update', $post);
+
         return Inertia::render('blog/edit', [
             'post' => $post,
         ]);
@@ -87,6 +95,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post): RedirectResponse
     {
+        $this->authorize('delete', $post);
+
         $post->delete();
 
         return redirect()->route('blog.index')

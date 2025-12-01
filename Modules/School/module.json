@@ -18,5 +18,66 @@
     "providers": [
         "Modules\\School\\Providers\\SchoolServiceProvider"
     ],
-    "files": []
+    "files": [],
+    "roles": [
+        {
+            "name": "teacher",
+            "description": "Teacher role with full access to assignments and grading",
+            "guard_name": "web"
+        },
+        {
+            "name": "student",
+            "description": "Student role with access to view and submit assignments",
+            "guard_name": "web"
+        },
+        {
+            "name": "parent",
+            "description": "Parent role with access to view their children's assignments and grades",
+            "guard_name": "web"
+        }
+    ],
+    "permissions": [
+        {
+            "name": "school.view_assignments",
+            "description": "View assignments",
+            "guard_name": "web",
+            "roles": ["teacher", "student", "parent"]
+        },
+        {
+            "name": "school.create_assignments",
+            "description": "Create new assignments",
+            "guard_name": "web",
+            "roles": ["teacher"]
+        },
+        {
+            "name": "school.edit_assignments",
+            "description": "Edit assignments",
+            "guard_name": "web",
+            "roles": ["teacher"]
+        },
+        {
+            "name": "school.delete_assignments",
+            "description": "Delete assignments",
+            "guard_name": "web",
+            "roles": ["teacher"]
+        },
+        {
+            "name": "school.submit_assignments",
+            "description": "Submit assignments",
+            "guard_name": "web",
+            "roles": ["student"]
+        },
+        {
+            "name": "school.grade_submissions",
+            "description": "Grade student submissions",
+            "guard_name": "web",
+            "roles": ["teacher"]
+        },
+        {
+            "name": "school.view_grades",
+            "description": "View grades and scores",
+            "guard_name": "web",
+            "roles": ["teacher", "student", "parent"]
+        }
+    ]
 }

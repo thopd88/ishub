@@ -28,7 +28,9 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $post = $this->route('post');
+
+        return $this->user()->can('blog.edit_posts') && ($post->user_id === $this->user()->id || $this->user()->can('blog.edit_any_posts'));
     }
 
     public function messages(): array

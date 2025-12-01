@@ -9,26 +9,26 @@ class AssignmentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['teacher', 'student', 'parent']);
+        return $user->can('school.view_assignments');
     }
 
     public function view(User $user, Assignment $assignment): bool
     {
-        return $user->hasAnyRole(['teacher', 'student', 'parent']);
+        return $user->can('school.view_assignments');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('teacher');
+        return $user->can('school.create_assignments');
     }
 
     public function update(User $user, Assignment $assignment): bool
     {
-        return $user->hasRole('teacher') && $assignment->teacher_id === $user->id;
+        return $user->can('school.edit_assignments') && $assignment->teacher_id === $user->id;
     }
 
     public function delete(User $user, Assignment $assignment): bool
     {
-        return $user->hasRole('teacher') && $assignment->teacher_id === $user->id;
+        return $user->can('school.delete_assignments') && $assignment->teacher_id === $user->id;
     }
 }

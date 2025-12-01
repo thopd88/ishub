@@ -8,7 +8,7 @@ class GradeSubmissionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('teacher');
+        return $this->user()->can('school.grade_submissions');
     }
 
     public function rules(): array

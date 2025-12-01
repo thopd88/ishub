@@ -9,23 +9,26 @@ class SubmissionPolicy
 {
     public function view(User $user, Submission $submission): bool
     {
-        if ($user->hasRole('teacher') && $submission->assignment->teacher_id === $user->id) {
+        if (! $user->can('school.view_grades')) {
+            return false;
+        }
+
+        // Teacher can view submissions for their own assignments
+        if ($submission->assignment->teacher_id === $user->id) {
             return true;
         }
 
-        if ($user->hasRole('student') && $submission->student_id === $user->id) {
+        // Student can view their own submissions
+        if ($submission->student_id === $user->id) {
             return true;
         }
 
-        if ($user->hasRole('parent')) {
-            return $user->children()->where('id', $submission->student_id)->exists();
-        }
-
-        return false;
+        // Parent can view their children's submissions
+        return $user->children()->where('id', $submission->student_id)->exists();
     }
 
     public function grade(User $user, Submission $submission): bool
     {
-        return $user->hasRole('teacher') && $submission->assignment->teacher_id === $user->id;
+        return $user->can('school.grade_submissions') && $submission->assignment->teacher_id === $user->id;
     }
 }

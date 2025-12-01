@@ -8,7 +8,7 @@ class StoreAssignmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('teacher');
+        return $this->user()->can('school.create_assignments');
     }
 
     public function rules(): array

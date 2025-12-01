@@ -9,5 +9,61 @@
     "providers": [
         "Modules\\Blog\\Providers\\BlogServiceProvider"
     ],
-    "files": []
+    "files": [],
+    "roles": [
+        {
+            "name": "blog_author",
+            "description": "Blog author role with ability to create and manage own posts",
+            "guard_name": "web"
+        },
+        {
+            "name": "blog_editor",
+            "description": "Blog editor role with ability to edit and publish any posts",
+            "guard_name": "web"
+        }
+    ],
+    "permissions": [
+        {
+            "name": "blog.view_posts",
+            "description": "View blog posts",
+            "guard_name": "web",
+            "roles": ["blog_author", "blog_editor"]
+        },
+        {
+            "name": "blog.create_posts",
+            "description": "Create new blog posts",
+            "guard_name": "web",
+            "roles": ["blog_author", "blog_editor"]
+        },
+        {
+            "name": "blog.edit_posts",
+            "description": "Edit own blog posts",
+            "guard_name": "web",
+            "roles": ["blog_author", "blog_editor"]
+        },
+        {
+            "name": "blog.edit_any_posts",
+            "description": "Edit any blog post",
+            "guard_name": "web",
+            "roles": ["blog_editor"]
+        },
+        {
+            "name": "blog.delete_posts",
+            "description": "Delete own blog posts",
+            "guard_name": "web",
+            "roles": ["blog_author", "blog_editor"]
+        },
+        {
+            "name": "blog.delete_any_posts",
+            "description": "Delete any blog post",
+            "guard_name": "web",
+            "roles": ["blog_editor"]
+        },
+        {
+            "name": "blog.publish_posts",
+            "description": "Publish blog posts",
+            "guard_name": "web",
+            "roles": ["blog_editor"]
+        }
+    ]
 }

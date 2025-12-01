@@ -14,15 +14,19 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        if ($user->hasRole('teacher')) {
+        // Check permissions to determine which dashboard to show
+        // Teacher dashboard if they can create or grade
+        if ($user->can('school.create_assignments') || $user->can('school.grade_submissions')) {
             return $this->teacherDashboard($user);
         }
 
-        if ($user->hasRole('student')) {
+        // Student dashboard if they can submit assignments
+        if ($user->can('school.submit_assignments')) {
             return $this->studentDashboard($user);
         }
 
-        if ($user->hasRole('parent')) {
+        // Parent dashboard if they can view grades
+        if ($user->can('school.view_grades')) {
             return $this->parentDashboard($user);
         }
 

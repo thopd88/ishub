@@ -3,7 +3,10 @@
 namespace Modules\Blog\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\Blog\Models\Post;
+use Modules\Blog\Policies\PostPolicy;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -27,6 +30,15 @@ class BlogServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->registerPolicies();
+    }
+
+    /**
+     * Register module policies.
+     */
+    protected function registerPolicies(): void
+    {
+        Gate::policy(Post::class, PostPolicy::class);
     }
 
     /**
