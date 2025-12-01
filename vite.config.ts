@@ -27,6 +27,15 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
         },
     },
+    server: {
+        fs: {
+            // Allow serving files from Modules directory
+            allow: [
+                path.resolve(__dirname, './'),
+                path.resolve(__dirname, './Modules'),
+            ],
+        },
+    },
     esbuild: {
         jsx: 'automatic',
     },
